@@ -6,12 +6,14 @@ class Clock extends React.Component
     constructor(props)
     {
         super(props);
-        this.state = {date: null,sort_type:0,items:null,filter_type:""};
+        this.state = {date: null,sort_type:0,items:null,filter_type:"",render_mode:0,inflictor:"",raw_data:null};
         this.setSortType = this.setSortType.bind(this);
         this.sortedRender = this.sortedRender.bind(this);
         this.setSearchType = this.setSearchType.bind(this);
+        this.changeRenderState = this.changeRenderState.bind(this);
     }
-    componentDidMount() {
+    componentDidMount() 
+    {
       this.tick();
       this.timerID = setInterval(
         () => this.tick(),
@@ -19,7 +21,8 @@ class Clock extends React.Component
       );
     }
 
-    componentWillUnmount() {
+    componentWillUnmount() 
+    {
       clearInterval(this.timerID);
     }
 
@@ -36,7 +39,8 @@ class Clock extends React.Component
       return str;
     }
 
-    async tick() {
+    async tick() 
+    {
       var response = await fetch('https://api.hypixel.net/skyblock/bazaar').then(response => response.json());
       var listitems = [];
       if(response)
@@ -51,9 +55,12 @@ class Clock extends React.Component
           profit = (buy_price.pricePerUnit - sell_price.pricePerUnit);
         }
         if(profit > 0)
-          listitems.push(<BazaarItem name={this.humanizeStrings(item.productId)} profit={profit.toFixed(2)} percent={profit/buy_price.pricePerUnit} buy_price={buy_price.pricePerUnit} sell_price={sell_price.pricePerUnit} sell_volume={item.sellVolume} buy_volume={item.buyVolume}/>)
+          listitems.push(<BazaarItem handler={this.changeRenderState} data={item.productId} name={this.humanizeStrings(item.productId)} profit={profit.toFixed(2)} percent={profit/buy_price.pricePerUnit} buy_price={buy_price.pricePerUnit} sell_price={sell_price.pricePerUnit} sell_volume={item.sellVolume} buy_volume={item.buyVolume} back_order={item.sellVolume/(item.buyMovingWeek/7)}/>)
       });
-      }  
+      }
+      this.setState({
+        raw_data : response
+      });  
       this.setState({
         date : listitems
       });
@@ -107,6 +114,12 @@ class Clock extends React.Component
         case 14:
           sort_array.sort((a,b) => parseFloat(a.props.sell_volume) < parseFloat(b.props.sell_volume) ? -1 : 1).reverse();
           break;
+        case 15:
+          sort_array.sort((a,b) => parseFloat(a.props.back_order) < parseFloat(b.props.back_order) ? -1 : 1);
+          break;
+        case 16:
+          sort_array.sort((a,b) => parseFloat(a.props.back_order) < parseFloat(b.props.back_order) ? -1 : 1).reverse();
+          break;
         default:
           break;
       }
@@ -128,35 +141,53 @@ class Clock extends React.Component
         filter_type : e.target.value
       });
     }
+    changeRenderState(e)
+    {
+      console.log(e.target.dataset.raw);
+      this.setState({
+        render_mode : parseInt(e.target.value),
+        inflictor: e.target.dataset.raw
+      })
+    }
     render()
     {
+      if(this.state.render_mode==0)
         return (
             <div>
               <p className="text-center table-dark bg-dark "> Shrapnel Trade</p>
-              <div className="input-group mb-3">
-              <input type="text" class="form-control" onChange={this.setSearchType}/>
-              <div className="input-group-prepend">
-                <span className="input-group-text" id="7">Search</span>
+                <div className="input-group mb-3">
+                <input type="text" className="form-control" onChange={this.setSearchType}/>
+                <div className="input-group-prepend">
+                  <span className="input-group-text" id="7">Search</span>
+                </div>
               </div>
-            </div>
-              <table className="table table-bordered table-hover table-secondary border-secondary">
-                <thead className="table-dark">
-                  <tr name={9}>
-                    <th scope="col" id={1} onClick={this.setSortType}>Name</th>
-                    <th scope="col" id= {9} onClick={this.setSortType}>Buy Price</th>
-                    <th scope="col" id= {7} onClick={this.setSortType}>Sell Price</th>
-                    <th scope="col" id= {11} onClick={this.setSortType}>Buy Volume</th>
-                    <th scope="col" id= {13} onClick={this.setSortType}>Sell Volume</th>
-                    <th scope="col" id={5} onClick={this.setSortType}>Profit</th>
-                    <th scope="col" id={3} onClick={this.setSortType}>Percent</th>
-                  </tr>
-                </thead>
-              <tbody>
-                {this.sortedRender()}
-              </tbody>
-              </table>
+                <table className="table table-bordered table-hover table-secondary border-secondary">
+                  <thead className="table-dark">
+                    <tr name={9}>
+                      <th scope="col" id={1} role='button' onClick={this.setSortType}>Name</th>
+                      <th scope="col" id= {9} role='button' onClick={this.setSortType}>Buy Price</th>
+                      <th scope="col" id= {7} role='button' onClick={this.setSortType}>Sell Price</th>
+                      <th scope="col" id= {11} role='button' onClick={this.setSortType}>Buy Volume</th>
+                      <th scope="col" id= {13} role='button' onClick={this.setSortType}>Sell Volume</th>
+                      <th scope="col" id= {15} role='button' onClick={this.setSortType}>Sales Backorder (days)</th>
+                      <th scope="col" id={5} role='button' onClick={this.setSortType}>Profit</th>
+                      <th scope="col" id={3} role='button' onClick={this.setSortType}>Percent</th>
+                    </tr>
+                  </thead>
+                <tbody>
+                  {this.sortedRender()}
+                </tbody>
+                </table>
+              
             </div>
           );
+      else
+          return (
+            <div>
+              <p className="text-center table-dark bg-dark "> Shrapnel Trade</p>
+              <BazaarCard name={this.state.inflictor} handler={this.changeRenderState} data={this.state.raw_data} />
+            </div>
+          )
     }
 }
 
@@ -171,16 +202,61 @@ class BazaarItem extends React.Component
   {
     return (
       <tr>
-        <td>{this.props.name}</td>
+        <td onClick={this.props.handler} value={1} role='button' data-raw={this.props.data}>{this.props.name}</td>
         <td>{parseFloat(this.props.sell_price).toLocaleString("en-US")}</td>
         <td>{parseFloat(this.props.buy_price).toLocaleString("en-US")}</td>
         <td>{parseFloat(this.props.buy_volume).toLocaleString("en-US")}</td>
         <td>{parseFloat(this.props.sell_volume).toLocaleString("en-US")}</td>
+        <td>{parseFloat(this.props.back_order).toLocaleString("en-US")}</td>
         <td>{parseFloat(this.props.profit).toLocaleString("en-US")}</td>
         <td>{parseFloat(this.props.percent).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:2})}</td>
       </tr>
     )
   }
+}
 
+class BazaarCard extends React.Component
+{
+  constructor(props)
+  {
+    super(props);
+    this.generateData();
+  }
+  generateData()
+  {
+    var name = this.props.name;
+    var item = this.props.data.products[this.props.name];
+    var final_items = []
+    item.buy_summary.forEach((thing) => {
+      final_items.push(
+      <tr>
+        <td>{parseInt(thing.amount)}</td>
+        <td>{parseInt(thing.pricePerUnit)}</td>
+        <td>{parseInt(thing.orders)}</td>
+      </tr>
+      )
+    });
+    return final_items;
+  }
+  render()
+  {
+    return (
+      <div>
+        <table className="table table-bordered table-hover table-secondary border-secondary">
+          <thead className="table-dark">
+            <tr>
+              <th scope="col">Amount</th>
+              <th scope="col">Price Per Unit</th>
+              <th scope="col">Orders</th>
+            </tr>
+          </thead>
+          <tbody>
+            {this.generateData()}
+          </tbody>
+        </table>
+        <button onClick={this.props.handler} value={0}>Click Me</button>
+      </div>
+    )
+  }
 }
 export default Clock;

@@ -1,6 +1,30 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
+
+
+var nameMap = new Map();
+nameMap.set('ENCHANTED_CARROT_STICK', 'Enchanted Carrot on a Stick');
+nameMap.set('HUGE_MUSHROOM_1', 'Brown Mushroom Block');
+nameMap.set('HUGE_MUSHROOM_2', 'Red Mushroom Block');
+nameMap.set('ENCHANTED_HUGE_MUSHROOM_1', 'Enchanted Brown Mushroom Block');
+nameMap.set('ENCHANTED_HUGE_MUSHROOM_2', 'Enchanted Red Mushroom Block');
+nameMap.set('SULPHUR', 'Gunpowder');
+nameMap.set('RABBIT', 'Raw Rabbit');
+nameMap.set('ENCHANTED_RABBIT', 'Enchanted Raw Rabbit');
+nameMap.set('RAW_FISH:1', 'Raw Salmon');
+nameMap.set('RAW_FISH:2', 'Clownfish');
+nameMap.set('RAW_FISH:3', 'Pufferfish');
+nameMap.set('INK_SACK:3', 'Cocoa Beans');
+nameMap.set('INK_SACK:4', 'Lapis Lazuli');
+nameMap.set('LOG', 'Oak Log');
+nameMap.set('LOG:1', 'Spruce Log');
+nameMap.set('LOG:2', 'Birch Log');
+nameMap.set('LOG_2:1', 'Dark Oak Log');
+nameMap.set('LOG_2', 'Acacia Log');
+nameMap.set('LOG:3', 'Jungle Log');
+nameMap.set('AOTE_STONE', 'Warped Stone')
+
 class Clock extends React.Component
 {
     constructor(props)
@@ -28,6 +52,10 @@ class Clock extends React.Component
 
     humanizeStrings(str)
     {
+      if(nameMap.has(str))
+      {
+        return nameMap.get(str);
+      }
       str = str.toLowerCase();
       str = str[0].toUpperCase() + str.slice(1);
       str = str.replaceAll("_"," ");
@@ -143,10 +171,10 @@ class Clock extends React.Component
     }
     changeRenderState(e)
     {
-      console.log(e.target.dataset.raw);
       this.setState({
         render_mode : parseInt(e.target.value),
-        inflictor: e.target.dataset.raw
+        inflictor: e.target.dataset.raw,
+        filter_type: ""
       })
     }
     render()
@@ -154,14 +182,14 @@ class Clock extends React.Component
       if(this.state.render_mode==0)
         return (
             <div>
-              <p className="text-center table-dark bg-dark "> Shrapnel Trade</p>
+              <h2 className="text-center table-dark bg-dark "> Shrapnel Trade</h2>
                 <div className="input-group mb-3">
                 <input type="text" className="form-control" onChange={this.setSearchType}/>
                 <div className="input-group-prepend">
                   <span className="input-group-text" id="7">Search</span>
                 </div>
               </div>
-                <table className="table table-bordered table-hover table-secondary border-secondary">
+                <table className="table table-bordered table-hover table-secondary border-secondary table-sm">
                   <thead className="table-dark">
                     <tr name={9}>
                       <th scope="col" id={1} role='button' onClick={this.setSortType}>Name</th>
@@ -184,10 +212,10 @@ class Clock extends React.Component
       else
           return (
             <div>
-              <p className="text-center table-dark bg-dark "> Shrapnel Trade</p>
+              <h2 className="text-center table-dark bg-dark "> Shrapnel Trade</h2>
               <BazaarCard name={this.state.inflictor} handler={this.changeRenderState} data={this.state.raw_data} />
             </div>
-          )
+          );
     }
 }
 
@@ -220,19 +248,48 @@ class BazaarCard extends React.Component
   constructor(props)
   {
     super(props);
-    this.generateData();
   }
-  generateData()
+  generateBuyData()
   {
-    var name = this.props.name;
     var item = this.props.data.products[this.props.name];
     var final_items = []
     item.buy_summary.forEach((thing) => {
       final_items.push(
       <tr>
-        <td>{parseInt(thing.amount)}</td>
-        <td>{parseInt(thing.pricePerUnit)}</td>
-        <td>{parseInt(thing.orders)}</td>
+        <td>{parseInt(thing.amount).toLocaleString("en-US")}</td>
+        <td>{parseFloat(thing.pricePerUnit).toLocaleString("en-US")}</td>
+        <td>{parseFloat(thing.orders).toLocaleString("en-US")}</td>
+      </tr>
+      )
+    });
+    return final_items;
+  }
+  humanizeStrings(str)
+  {
+    if(nameMap.has(str))
+      {
+        return nameMap.get(str);
+      }
+      str = str.toLowerCase();
+      str = str[0].toUpperCase() + str.slice(1);
+      str = str.replaceAll("_"," ");
+      var idx = 0;
+      while(((idx = str.indexOf(" ",idx+1))!== -1))
+      {
+        str = str.slice(0,idx+1) + str[idx+1].toUpperCase() + str.slice(idx+2,str.length);
+      }
+      return str;
+  }
+  generateSellData()
+  {
+    var item = this.props.data.products[this.props.name];
+    var final_items = []
+    item.sell_summary.forEach((thing) => {
+      final_items.push(
+      <tr>
+        <td>{parseInt(thing.amount).toLocaleString("en-US")}</td>
+        <td>{parseFloat(thing.pricePerUnit).toLocaleString("en-US")}</td>
+        <td>{parseFloat(thing.orders).toLocaleString("en-US")}</td>
       </tr>
       )
     });
@@ -241,9 +298,15 @@ class BazaarCard extends React.Component
   render()
   {
     return (
-      <div>
-        <table className="table table-bordered table-hover table-secondary border-secondary">
+      <div class="container-fluid">
+        <h1>{this.humanizeStrings(this.props.name)}</h1>
+        <div class="row">
+        <div class="col-sm">
+        <table className="table table-bordered table-hover table-secondary border-secondary table-sm">
           <thead className="table-dark">
+            <tr>
+              <th colspan="3" className="text-center"> Buy Summary</th>
+            </tr>
             <tr>
               <th scope="col">Amount</th>
               <th scope="col">Price Per Unit</th>
@@ -251,10 +314,29 @@ class BazaarCard extends React.Component
             </tr>
           </thead>
           <tbody>
-            {this.generateData()}
+            {this.generateBuyData()}
           </tbody>
         </table>
-        <button onClick={this.props.handler} value={0}>Click Me</button>
+        </div>
+        <div class="col-sm">
+        <table className="table table-bordered table-hover table-secondary border-secondary table-sm">
+          <thead className="table-dark">
+            <tr>
+              <th colspan="3" className="text-center"> Sell Summary</th>
+            </tr>
+            <tr>
+              <th scope="col">Amount</th>
+              <th scope="col">Price Per Unit</th>
+              <th scope="col">Orders</th>
+            </tr>
+          </thead>
+          <tbody>
+            {this.generateSellData()}
+          </tbody>
+        </table>
+        </div>
+        </div>
+        <button typer="button" onClick={this.props.handler} value={0}>Back To Home</button>
       </div>
     )
   }

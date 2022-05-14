@@ -51,7 +51,7 @@ class Clock extends React.Component
           profit = (buy_price.pricePerUnit - sell_price.pricePerUnit);
         }
         if(profit > 0)
-          listitems.push(<BazaarItem name={this.humanizeStrings(item.productId)} profit={profit.toFixed(2)} percent={profit/buy_price.pricePerUnit} />)
+          listitems.push(<BazaarItem name={this.humanizeStrings(item.productId)} profit={profit.toFixed(2)} percent={profit/buy_price.pricePerUnit} buy_price={buy_price.pricePerUnit} sell_price={sell_price.pricePerUnit} sell_volume={item.sellVolume} buy_volume={item.buyVolume}/>)
       });
       }  
       this.setState({
@@ -66,22 +66,46 @@ class Clock extends React.Component
       switch(sort_type)
       {
         case 1:
-          sort_array.sort((a,b) => a.props.name < b.props.name ? -1 : 1)
+          sort_array.sort((a,b) => a.props.name < b.props.name ? -1 : 1);
           break;
         case 2:
-          sort_array.sort((a,b) => a.props.name < b.props.name ? -1 : 1).reverse()
+          sort_array.sort((a,b) => a.props.name < b.props.name ? -1 : 1).reverse();
           break;
         case 3:
-          sort_array.sort((a,b) => parseFloat(a.props.percent) < parseFloat(b.props.percent) ? -1 : 1)
+          sort_array.sort((a,b) => parseFloat(a.props.percent) < parseFloat(b.props.percent) ? -1 : 1);
           break;
         case 4:
-          sort_array.sort((a,b) => parseFloat(a.props.percent) < parseFloat(b.props.percent) ? -1 : 1).reverse()
+          sort_array.sort((a,b) => parseFloat(a.props.percent) < parseFloat(b.props.percent) ? -1 : 1).reverse();
           break;
         case 5:
-          sort_array.sort((a,b) => parseFloat(a.props.profit) < parseFloat(b.props.profit) ? -1 : 1)
+          sort_array.sort((a,b) => parseFloat(a.props.profit) < parseFloat(b.props.profit) ? -1 : 1);
           break;
         case 6:
-          sort_array.sort((a,b) => parseFloat(a.props.profit) < parseFloat(b.props.profit) ? -1 : 1).reverse()
+          sort_array.sort((a,b) => parseFloat(a.props.profit) < parseFloat(b.props.profit) ? -1 : 1).reverse();
+          break;
+        case 7:
+          sort_array.sort((a,b) => parseFloat(a.props.buy_price) < parseFloat(b.props.buy_price) ? -1 : 1);
+          break;
+        case 8:
+          sort_array.sort((a,b) => parseFloat(a.props.buy_price) < parseFloat(b.props.buy_price) ? -1 : 1).reverse();
+          break;
+        case 9:
+          sort_array.sort((a,b) => parseFloat(a.props.sell_price) < parseFloat(b.props.sell_price) ? -1 : 1);
+          break;
+        case 10:
+          sort_array.sort((a,b) => parseFloat(a.props.sell_price) < parseFloat(b.props.sell_price) ? -1 : 1).reverse();
+          break;
+        case 11:
+          sort_array.sort((a,b) => parseFloat(a.props.buy_volume) < parseFloat(b.props.buy_volume) ? -1 : 1);
+          break;
+        case 12:
+          sort_array.sort((a,b) => parseFloat(a.props.buy_volume) < parseFloat(b.props.buy_volume) ? -1 : 1).reverse();
+          break;
+        case 13:
+          sort_array.sort((a,b) => parseFloat(a.props.sell_volume) < parseFloat(b.props.sell_volume) ? -1 : 1);
+          break;
+        case 14:
+          sort_array.sort((a,b) => parseFloat(a.props.sell_volume) < parseFloat(b.props.sell_volume) ? -1 : 1).reverse();
           break;
         default:
           break;
@@ -106,7 +130,6 @@ class Clock extends React.Component
     }
     render()
     {
-      // console.log(this.state.date.products);
         return (
             <div>
               <p className="text-center table-dark bg-dark "> Shrapnel Trade</p>
@@ -120,6 +143,10 @@ class Clock extends React.Component
                 <thead className="table-dark">
                   <tr name={9}>
                     <th scope="col" id={1} onClick={this.setSortType}>Name</th>
+                    <th scope="col" id= {9} onClick={this.setSortType}>Buy Price</th>
+                    <th scope="col" id= {7} onClick={this.setSortType}>Sell Price</th>
+                    <th scope="col" id= {11} onClick={this.setSortType}>Buy Volume</th>
+                    <th scope="col" id= {13} onClick={this.setSortType}>Sell Volume</th>
                     <th scope="col" id={5} onClick={this.setSortType}>Profit</th>
                     <th scope="col" id={3} onClick={this.setSortType}>Percent</th>
                   </tr>
@@ -145,6 +172,10 @@ class BazaarItem extends React.Component
     return (
       <tr>
         <td>{this.props.name}</td>
+        <td>{parseFloat(this.props.sell_price).toLocaleString("en-US")}</td>
+        <td>{parseFloat(this.props.buy_price).toLocaleString("en-US")}</td>
+        <td>{parseFloat(this.props.buy_volume).toLocaleString("en-US")}</td>
+        <td>{parseFloat(this.props.sell_volume).toLocaleString("en-US")}</td>
         <td>{parseFloat(this.props.profit).toLocaleString("en-US")}</td>
         <td>{parseFloat(this.props.percent).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:2})}</td>
       </tr>

@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/bazaar-flipper/static/css/main.8b0db0ad.css",
-    "main.js": "/bazaar-flipper/static/js/main.0f5b2360.js",
+    "main.js": "/bazaar-flipper/static/js/main.969c5262.js",
     "index.html": "/bazaar-flipper/index.html",
     "main.8b0db0ad.css.map": "/bazaar-flipper/static/css/main.8b0db0ad.css.map",
-    "main.0f5b2360.js.map": "/bazaar-flipper/static/js/main.0f5b2360.js.map"
+    "main.969c5262.js.map": "/bazaar-flipper/static/js/main.969c5262.js.map"
   },
   "entrypoints": [
     "static/css/main.8b0db0ad.css",
-    "static/js/main.0f5b2360.js"
+    "static/js/main.969c5262.js"
   ]
 }

@@ -1,6 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
-
+import {SortAscIcon, SortDescIcon} from '@primer/octicons-react'
 
 
 var nameMap = new Map();
@@ -41,7 +40,7 @@ class Clock extends React.Component
       this.tick();
       this.timerID = setInterval(
         () => this.tick(),
-        1000
+        10000
       );
     }
 
@@ -159,6 +158,7 @@ class Clock extends React.Component
     }
     setSortType(e)
     {
+      console.log(e.target);
       this.setState(prevState => ({
         sort_type: (parseInt(prevState.sort_type) === parseInt(e.target.id)) ? parseInt(e.target.id) + 1 : parseInt(e.target.id)
       }));
@@ -168,6 +168,10 @@ class Clock extends React.Component
       this.setState({
         filter_type : e.target.value
       });
+    }
+    checkSort(e)
+    {
+      return this.state.sort_type === e
     }
     changeRenderState(e)
     {
@@ -179,27 +183,28 @@ class Clock extends React.Component
     }
     render()
     {
-      if(this.state.render_mode==0)
+      if(this.state.render_mode===0)
         return (
             <div>
               <h2 className="text-center table-dark bg-dark "> Shrapnel Trade</h2>
                 <div className="input-group mb-3">
-                <input type="text" className="form-control" onChange={this.setSearchType}/>
-                <div className="input-group-prepend">
+                <div className="input-group-prepend ms-1">
                   <span className="input-group-text" id="7">Search</span>
                 </div>
-              </div>
+                <input type="text" className="form-group" onChange={this.setSearchType}/>
+                
+                </div>
                 <table className="table table-bordered table-hover table-secondary border-secondary table-sm">
                   <thead className="table-dark">
                     <tr name={9}>
-                      <th scope="col" id={1} role='button' onClick={this.setSortType}>Name</th>
-                      <th scope="col" id= {9} role='button' onClick={this.setSortType}>Buy Price</th>
-                      <th scope="col" id= {7} role='button' onClick={this.setSortType}>Sell Price</th>
-                      <th scope="col" id= {11} role='button' onClick={this.setSortType}>Buy Volume</th>
-                      <th scope="col" id= {13} role='button' onClick={this.setSortType}>Sell Volume</th>
-                      <th scope="col" id= {15} role='button' onClick={this.setSortType}>Sales Backorder (days)</th>
-                      <th scope="col" id={5} role='button' onClick={this.setSortType}>Profit</th>
-                      <th scope="col" id={3} role='button' onClick={this.setSortType}>Percent</th>
+                      <th scope="col" id={1} role='button' onClick={this.setSortType}>Name {this.state.sort_type===1 ? <SortAscIcon size={16} className="pe-none"/> : <SortDescIcon size={16} className="pe-none" />}</th>
+                      <th scope="col" id= {9} role='button' onClick={this.setSortType}>Buy Price {this.state.sort_type===9 ? <SortAscIcon size={16} className="pe-none"/> : <SortDescIcon size={16} className="pe-none" />}</th>
+                      <th scope="col" id= {7} role='button' onClick={this.setSortType}>Sell Price {this.state.sort_type===7 ? <SortAscIcon size={16} className="pe-none"/> : <SortDescIcon size={16} className="pe-none" />}</th>
+                      <th scope="col" id= {11} role='button' onClick={this.setSortType}>Buy Volume {this.state.sort_type===11 ? <SortAscIcon size={16} className="pe-none"/> : <SortDescIcon size={16} className="pe-none" />}</th>
+                      <th scope="col" id= {13} role='button' onClick={this.setSortType}>Sell Volume {this.state.sort_type===13 ? <SortAscIcon size={16} className="pe-none"/> : <SortDescIcon size={16} className="pe-none" />}</th>
+                      <th scope="col" id= {15} role='button' onClick={this.setSortType}>Sales Backorder (days) {this.state.sort_type===15 ? <SortAscIcon size={16} className="pe-none"/> : <SortDescIcon size={16} className="pe-none" />}</th>
+                      <th scope="col" id={5} role='button' onClick={this.setSortType}>Profit {this.state.sort_type===5 ? <SortAscIcon size={16} className="pe-none"/> : <SortDescIcon size={16} className="pe-none" />}</th>
+                      <th scope="col" id={3} role='button' onClick={this.setSortType}>Percent {this.state.sort_type===3 ? <SortAscIcon size={16} className="pe-none"/> : <SortDescIcon size={16} className="pe-none" />}</th>
                     </tr>
                   </thead>
                 <tbody>
@@ -245,10 +250,6 @@ class BazaarItem extends React.Component
 
 class BazaarCard extends React.Component
 {
-  constructor(props)
-  {
-    super(props);
-  }
   generateBuyData()
   {
     var item = this.props.data.products[this.props.name];
@@ -336,9 +337,12 @@ class BazaarCard extends React.Component
         </table>
         </div>
         </div>
-        <button typer="button" onClick={this.props.handler} value={0}>Back To Home</button>
+        <div className="d-grid gap-2">
+          <button type="button" className="btn btn-danger" onClick={this.props.handler} value={0}>Back To Home</button>
+        </div>
       </div>
     )
   }
+  
 }
 export default Clock;

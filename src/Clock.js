@@ -1,7 +1,6 @@
 import React from 'react';
 import {SortAscIcon, SortDescIcon} from '@primer/octicons-react'
-
-
+import axios from 'axios';
 var nameMap = new Map();
 nameMap.set('ENCHANTED_CARROT_STICK', 'Enchanted Carrot on a Stick');
 nameMap.set('HUGE_MUSHROOM_1', 'Brown Mushroom Block');
@@ -68,7 +67,8 @@ class Clock extends React.Component
 
     async tick() 
     {
-      var response = await fetch('https://api.hypixel.net/skyblock/bazaar').then(response => response.json());
+      var response = await axios.get('https://api.hypixel.net/skyblock/bazaar');
+      response = response.data;
       var listitems = [];
       if(response)
       {

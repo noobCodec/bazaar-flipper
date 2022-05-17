@@ -1,11 +1,8 @@
-/**
- * @jest-environment jsdom
- */
 require('jest-fetch-mock').enableMocks()
 import 'regenerator-runtime/runtime'
 import React from 'react';
 import { render, screen , fireEvent, waitFor } from '@testing-library/react';
-import Clock from "../src/Clock"
+import Clock from "../Clock"
 
 // Render Sanity Check
 it('Render and Check for Item', async () => {

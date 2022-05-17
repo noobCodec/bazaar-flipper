@@ -60,5 +60,6 @@
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/noobCodec/bazaar-flipper/issues"
-  }
+  },
+  "overrides": { "autoprefixer": "10.4.5" }
 }
